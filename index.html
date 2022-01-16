@@ -6,7 +6,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
   </head>
-  <body>
+  <body oncontextmenu="return false">
     <script type="text/javascript">
       AFRAME.registerComponent("zoom-component", {
         schema: {},
@@ -15,7 +15,7 @@
         },
         camzoom: function (event) {
           // small increments for smoother zooming
-          const delta = event.wheelDelta / 120 / 10;
+          const delta = event.wheelDelta / 1200;
           var zoom = this.el.getAttribute("camera").zoom;
           var finalZoom = zoom + delta;
           // limiting the zoom
@@ -74,6 +74,9 @@
             .getElementById("button4")
             .blur();
         },
+        bd: function () {
+          this.data.go = false;
+        }
       });
     </script>
 
@@ -119,7 +122,7 @@
             if (this.ifMouseDown) {
               var temp_x = event.x - this.x_cord;
               var temp_y = event.y - this.y_cord;
-              if(event.shiftKey){
+              if(event.shiftKey || (event.buttons ==2)){
                 this.el.object3D.rotateOnWorldAxis(
                   this.vectz, (-temp_x/200)
                 );
@@ -241,7 +244,7 @@ var KEYS = [
     <a-scene vr-mode-ui="enabled: false">
       <a-asset-item
         id="spine"
-        src="innards-spine.glb"
+        src="innards-spine-metal.glb"
         response-type="arraybuffer"
         crossorigin="anonymous"
       ></a-asset-item>
@@ -257,7 +260,7 @@ var KEYS = [
 
       <a-asset-item
         id="heart1"
-        src="innards-heart1.glb"
+        src="innards-heart1-metal.glb"
         response-type="arraybuffer"
         crossorigin="anonymous"
       ></a-asset-item>
@@ -273,7 +276,7 @@ var KEYS = [
 
       <a-asset-item
         id="heart2"
-        src="innards-heart2.glb"
+        src="innards-heart2-metal.glb"
         response-type="arraybuffer"
         crossorigin="anonymous"
       ></a-asset-item>
