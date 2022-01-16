@@ -5,11 +5,6 @@
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-<style>a-scene {
-  height: 100%;
-  width: 100%;
-}</style>
-
   </head>
   <body>
     <script type="text/javascript">
@@ -57,18 +52,27 @@
         },
         b1: function () {
           this.data.enabled = this.data.number == 1;
+          document
+            .getElementById("button1")
+            .blur();
         },
         b2: function () {
           this.data.enabled = this.data.number == 2;
+                    document
+            .getElementById("button2")
+            .blur();
         },
         b3: function () {
           this.data.enabled = this.data.number == 3;
+                    document
+            .getElementById("button3")
+            .blur();
         },
         b4: function () {
           this.data.enabled = this.data.number == 4;
-        },
-        bd: function () {
-          this.data.go = false;
+                    document
+            .getElementById("button4")
+            .blur();
         },
       });
     </script>
@@ -100,8 +104,8 @@
         OnDocumentMouseDown: function (event) {
           if(this.el.components.button_enabled.data.go) {
             this.ifMouseDown = true;
-            this.x_cord = event.clientX;
-            this.y_cord = event.clientY;
+            this.x_cord = event.x;
+            this.y_cord = event.y;
           }
           else{
             this.el.components.button_enabled.data.go = true;
@@ -113,8 +117,8 @@
         OnDocumentMouseMove: function (event) {
           if (this.el.components.button_enabled.data.enabled) {
             if (this.ifMouseDown) {
-              var temp_x = event.clientX - this.x_cord;
-              var temp_y = event.clientY - this.y_cord;
+              var temp_x = event.x - this.x_cord;
+              var temp_y = event.y - this.y_cord;
 
               this.el.object3D.rotateOnWorldAxis(
                 this.vecty,
@@ -125,91 +129,84 @@
                 (temp_y * this.data.speed) / 100
               );
 
-              this.x_cord = event.clientX;
-              this.y_cord = event.clientY;
+              this.x_cord = event.x;
+              this.y_cord = event.y;
             }
           }
         },
       });
     </script>
-
     <script type="text/javascript">
-      AFRAME.registerComponent("wasd-move-component", {
-        schema: { speed: { default: 0.015 } },
-        init: function () {
-          this.up = false;
-          this.down = false;
-          this.left = false;
-          this.right = false;
-          document.addEventListener("keydown", this.press.bind(this));
-          document.addEventListener("keyup", this.release.bind(this));
-        },
-        press: function (event) {
-          if (this.el.components.button_enabled.data.enabled) {
-            if (event.keyCode === 38 /* up */ || event.keyCode === 87 /* w */) {
-              this.up = true;
-            }
-            if (
-              event.keyCode === 39 /* right */ ||
-              event.keyCode === 68 /* d */
-            ) {
-              this.right = true;
-            }
-            if (
-              event.keyCode === 40 /* down */ ||
-              event.keyCode === 83 /* s */
-            ) {
-              this.down = true;
-            }
-            if (
-              event.keyCode === 37 /* left */ ||
-              event.keyCode === 65 /* a */
-            ) {
-              this.left = true;
-            }
-          }
-          else{
-            this.up = this.right = this.down = this.left = false;
-          }
-        },
-        release: function (event) {
-          if (event.keyCode === 38 /* up */ || event.keyCode === 87 /* w */) {
-            this.up = false;
-          }
-          if (
-            event.keyCode === 39 /* right */ ||
-            event.keyCode === 68 /* d */
-          ) {
-            this.right = false;
-          }
-          if (event.keyCode === 40 /* down */ || event.keyCode === 83 /* s */) {
-            this.down = false;
-          }
-          if (event.keyCode === 37 /* left */ || event.keyCode === 65 /* a */) {
-            this.left = false;
-          }
-        },
-        tick: function () {
-          var x = this.el.object3D.position.x;
-          var y = this.el.object3D.position.y;
-          var z = this.el.object3D.position.z;
-          if (this.up) {
-            y = y + this.data.speed;
-          }
-          if (this.right) {
-            x = x + this.data.speed;
-          }
-          if (this.down) {
-            y = y - this.data.speed;
-          }
-          if (this.left) {
-            x = x - this.data.speed;
-          }
-          if (this.up || this.right || this.left || this.down) {
-            this.el.object3D.position.set(x, y, z);
-          }
-        },
-      });
+      var CLAMP_VELOCITY = 0.00001;
+var MAX_DELTA = 0.2;
+var KEYS = [
+  'KeyW', 'KeyA', 'KeyS', 'KeyD',
+  'ArrowUp', 'ArrowLeft', 'ArrowRight', 'ArrowDown'
+];
+      AFRAME.components["wasd-controls"].Component.prototype.getMovementVector =
+        (function () {
+          var directionVector = new THREE.Vector3(0, 0, 0);
+          var rotationEuler = new THREE.Euler(0, 0, 0, "YXZ");
+
+          return function (delta) {
+            var velocity = this.velocity;
+            directionVector.copy(velocity);
+            directionVector.multiplyScalar(delta);
+            return directionVector;
+          };
+        })();
+
+      AFRAME.components["wasd-controls"].Component.prototype.updateVelocity = function (delta) {
+    var acceleration;
+    var adAxis;
+    var adSign;
+    var data = this.data;
+    var keys = this.keys;
+    var velocity = this.velocity;
+    var wsAxis;
+    var wsSign;
+
+    adAxis = data.adAxis;
+    wsAxis = data.wsAxis;
+
+    // If FPS too low, reset velocity.
+    if (delta > MAX_DELTA) {
+      velocity[adAxis] = 0;
+      velocity[wsAxis] = 0;
+      return;
+    }
+
+    // https://gamedev.stackexchange.com/questions/151383/frame-rate-independant-movement-with-acceleration
+    var scaledEasing = Math.pow(1 / this.easing, delta * 60);
+    // Velocity Easing.
+    if (velocity[adAxis] !== 0) {
+      velocity[adAxis] = velocity[adAxis] * scaledEasing;
+    }
+    if (velocity[wsAxis] !== 0) {
+      velocity[wsAxis] = velocity[wsAxis] * scaledEasing;
+    }
+
+    // Clamp velocity easing.
+    if (Math.abs(velocity[adAxis]) < CLAMP_VELOCITY) { velocity[adAxis] = 0; }
+    if (Math.abs(velocity[wsAxis]) < CLAMP_VELOCITY) { velocity[wsAxis] = 0; }
+
+    if (!data.enabled) { return; }
+
+    // Update velocity using keys pressed.
+    acceleration = data.acceleration;
+    if(this.el.components.button_enabled.data.enabled){
+      if (data.adEnabled) {
+        adSign = data.adInverted ? -1 : 1;
+        if (keys.KeyA || keys.ArrowLeft) { velocity[adAxis] -= adSign * acceleration * delta; }
+        if (keys.KeyD || keys.ArrowRight) { velocity[adAxis] += adSign * acceleration * delta; }
+      }
+      if (data.wsEnabled) {
+        wsSign = -1;
+        if (keys.KeyW || keys.ArrowUp) { velocity[wsAxis] -= wsSign * acceleration * delta; }
+        if (keys.KeyS || keys.ArrowDown) { velocity[wsAxis] += wsSign * acceleration * delta; }
+      }
+    }
+  }
     </script>
 
 
@@ -235,8 +232,7 @@
   <label class="btn btn-outline-light" for="button4">Broken</label>
 </div>
 
-<div id="myEmbeddedScene">
-    <a-scene embedded vr-mode-ui="enabled: false">
+    <a-scene vr-mode-ui="enabled: false">
       <a-asset-item
         id="spine"
         src="innards-spine.glb"
@@ -248,7 +244,7 @@
         scale="1 1 1"
         rotation="0 -90 0"
         position="-1 0 0"
-        wasd-move-component
+        wasd-controls="wsAxis:y; acceleration:10"
         drag-rotate-component
         button_enabled="number:1; enabled:'true'"
       ></a-entity>
@@ -263,7 +259,7 @@
         gltf-model="#heart1"
         scale="1 1 1"
         rotation="0 -90 0"
-        wasd-move-component
+        wasd-controls="wsAxis:y; acceleration:10"
         drag-rotate-component
         button_enabled="number:2"
       ></a-entity>
@@ -278,7 +274,7 @@
         gltf-model="#heart2"
         scale="1 1 1"
         rotation="0 -90 0"
-        wasd-move-component
+        wasd-controls="wsAxis:y; acceleration:10"
         drag-rotate-component
         button_enabled="number:3"
       ></a-entity>
@@ -294,7 +290,7 @@
         scale="1 1 1"
         rotation="0 -90 0"
         position="1 0 0"
-        wasd-move-component
+        wasd-controls="wsAxis:y; acceleration:10"
         drag-rotate-component
         button_enabled="number:4"
       ></a-entity>
@@ -315,6 +311,5 @@
         position="0 2 10"
       ></a-entity>
     </a-scene>
-    </div>
   </body>
 </html>
