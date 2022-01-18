@@ -38,7 +38,7 @@
           var zoom = this.el.getAttribute("camera").zoom;
           var finalZoom = zoom + delta;
           // limiting the zoom
-          if (finalZoom < 3) finalZoom = 3;
+          if (finalZoom < 2.5) finalZoom = 2.5;
           if (finalZoom > 6) finalZoom = 6;
           this.el.setAttribute("camera", "zoom", finalZoom);
         },
@@ -309,63 +309,63 @@
     <a-scene vr-mode-ui="enabled: false">
       <a-asset-item
         id="spine"
-        src="innards-spine-metal.glb"
+        src="spine3D.glb"
         response-type="arraybuffer"
         crossorigin="anonymous"
       ></a-asset-item>
       <a-entity
         gltf-model="#spine"
-        scale="1 1 1"
+        scale="2.2 2.2 2.2"
         rotation="0 -90 0"
-        position="-1.1 0 0"
-        wasd-controls="wsAxis:y; acceleration:2.5"
+        position="-2.4 -0.4 -6"
+        wasd-controls="wsAxis:y; acceleration:5.5"
         drag-rotate-component
         button_enabled="number:1; enabled:'true'"
       ></a-entity>
 
       <a-asset-item
         id="heart1"
-        src="innards-heart1-metal.glb"
+        src="heart3D-1.glb"
         response-type="arraybuffer"
         crossorigin="anonymous"
       ></a-asset-item>
       <a-entity
         gltf-model="#heart1"
-        scale="1 1 1"
+        scale="1.8 1.8 1.8"
         rotation="0 -90 0"
-        position="-0.2 0.1 0"
-        wasd-controls="wsAxis:y; acceleration:2.5"
+        position="-0.185 -0.195 -4"
+        wasd-controls="wsAxis:y; acceleration:4.5"
         drag-rotate-component
         button_enabled="number:2"
       ></a-entity>
 
       <a-asset-item
         id="heart2"
-        src="innards-heart2-metal.glb"
+        src="heart3D-2.glb"
         response-type="arraybuffer"
         crossorigin="anonymous"
       ></a-asset-item>
       <a-entity
         gltf-model="#heart2"
-        scale="1 1 1"
+        scale="1.4 1.4 1.4"
         rotation="0 -90 0"
-        position="0.04 -0.136 0"
-        wasd-controls="wsAxis:y; acceleration:2.5"
+        position="0.11 -0.15 -2"
+        wasd-controls="wsAxis:y; acceleration:3.5"
         drag-rotate-component
         button_enabled="number:3"
       ></a-entity>
 
       <a-asset-item
         id="broken"
-        src="innards-broken.glb"
+        src="broken3D.glb"
         response-type="arraybuffer"
         crossorigin="anonymous"
       ></a-asset-item>
       <a-entity
         gltf-model="#broken"
         scale="1 1 1"
-        rotation="0 -90 0"
-        position="1 0 0"
+        rotation="0 -90 180"
+        position="1 0.02 0"
         wasd-controls="wsAxis:y; acceleration:2.5"
         drag-rotate-component
         button_enabled="number:4"
